@@ -1,0 +1,14 @@
+.{
+    .name = "yaml",
+    .version = "0.2.5",
+    .dependencies = .{
+        .yaml = .{
+            .url = "https://github.com/yaml/libyaml/archive/master.tar.gz",
+            .hash = "122003f3f2e051c12f927ef9a5f69de7444b222058fca9bb2a64d777cbc1b61bef10"
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+    },
+}
