@@ -5,20 +5,22 @@ pub fn build(b: *std.Build) void {
 
     const optimize = b.standardOptimizeOption(.{});
 
-    const linkage = b.option(std.build.Step.Compile.Linkage, "linkage", "Specify static or dynamic linkage") orelse .dynamic;
+    const linkage = b.option(std.builtin.LinkMode, "linkage", "Specify static or dynamic linkage") orelse .dynamic;
 
     const upstream = b.dependency("yaml", .{});
-    var lib = std.build.Step.Compile.create(b, .{
+    var lib = std.Build.Step.Compile.create(b, .{
+        .root_module = .{
+            .target = target,
+            .optimize = optimize,
+        },
         .name = "yaml",
-        .target = target,
-        .optimize = optimize,
         .kind = .lib,
         .linkage = linkage,
     });
 
     lib.linkLibC();
     lib.addConfigHeader(b.addConfigHeader(
-        .{ .style = .{ .cmake = .{ .dependency = .{ .dependency = upstream, .sub_path = "cmake/config.h.in" } } } },
+        .{ .style = .{ .cmake = upstream.path("cmake/config.h.in") } },
         .{
             // TODO figure out if there's a way I can read this from the zon file so its only set in one place?
             .YAML_VERSION_MAJOR = 0,
@@ -29,7 +31,7 @@ pub fn build(b: *std.Build) void {
     ));
     lib.addIncludePath(.{ .dependency = .{ .dependency = upstream, .sub_path = "include" } });
     lib.addCSourceFiles(.{
-        .dependency = upstream,
+        .root = upstream.path(""),
         .files = &.{
             "src/api.c",
             "src/dumper.c",
@@ -43,11 +45,10 @@ pub fn build(b: *std.Build) void {
         .flags = &[_][]const u8{"-DHAVE_CONFIG_H"},
     });
 
-    lib.installHeadersDirectoryOptions(.{
-        .source_dir = .{ .dependency = .{ .dependency = upstream, .sub_path = "include" } },
-        .install_dir = .header,
-        .install_subdir = "",
-        .include_extensions = &.{"yaml.h"},
-    });
+    lib.installHeadersDirectory(
+        upstream.path("include"),
+        "",
+        .{ .include_extensions = &.{"yaml.h"} },
+    );
     b.installArtifact(lib);
 }
