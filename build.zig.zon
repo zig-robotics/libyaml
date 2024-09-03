@@ -3,8 +3,8 @@
     .version = "0.2.5",
     .dependencies = .{
         .yaml = .{
-            .url = "https://github.com/yaml/libyaml/archive/master.tar.gz",
-            .hash = "122003f3f2e051c12f927ef9a5f69de7444b222058fca9bb2a64d777cbc1b61bef10"
+            .url = "https://github.com/yaml/libyaml/archive/refs/tags/0.2.5.tar.gz",
+            .hash = "12200c4021cb16ecdf8d3707098ff694e140c9f92cbd76bb1f30cba84965eab34db6",
         },
     },
     .paths = .{

@@ -9,18 +9,15 @@ pub fn build(b: *std.Build) void {
 
     const upstream = b.dependency("yaml", .{});
     var lib = std.Build.Step.Compile.create(b, .{
-        .root_module = .{
-            .target = target,
-            .optimize = optimize,
-        },
         .name = "yaml",
+        .root_module = .{ .target = target, .optimize = optimize },
         .kind = .lib,
         .linkage = linkage,
     });
 
     lib.linkLibC();
     lib.addConfigHeader(b.addConfigHeader(
-        .{ .style = .{ .cmake = upstream.path("cmake/config.h.in") } },
+        .{ .style = .{ .cmake = .{ .dependency = .{ .dependency = upstream, .sub_path = "cmake/config.h.in" } } } },
         .{
             // TODO figure out if there's a way I can read this from the zon file so its only set in one place?
             .YAML_VERSION_MAJOR = 0,
@@ -45,10 +42,6 @@ pub fn build(b: *std.Build) void {
         .flags = &[_][]const u8{"-DHAVE_CONFIG_H"},
     });
 
-    lib.installHeadersDirectory(
-        upstream.path("include"),
-        "",
-        .{ .include_extensions = &.{"yaml.h"} },
-    );
+    lib.installHeader(upstream.path("include/yaml.h"), "yaml.h");
     b.installArtifact(lib);
 }
