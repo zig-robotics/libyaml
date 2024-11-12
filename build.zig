@@ -5,21 +5,30 @@ pub fn build(b: *std.Build) void {
 
     const optimize = b.standardOptimizeOption(.{});
 
-    const linkage = b.option(std.builtin.LinkMode, "linkage", "Specify static or dynamic linkage") orelse .dynamic;
+    const linkage = b.option(
+        std.builtin.LinkMode,
+        "linkage",
+        "Specify static or dynamic linkage",
+    ) orelse .dynamic;
 
     const upstream = b.dependency("yaml", .{});
     var lib = std.Build.Step.Compile.create(b, .{
         .name = "yaml",
-        .root_module = .{ .target = target, .optimize = optimize },
+        .root_module = .{
+            .target = target,
+            .optimize = optimize,
+            .pic = if (linkage == .dynamic) true else null,
+        },
         .kind = .lib,
         .linkage = linkage,
     });
 
     lib.linkLibC();
     lib.addConfigHeader(b.addConfigHeader(
-        .{ .style = .{ .cmake = .{ .dependency = .{ .dependency = upstream, .sub_path = "cmake/config.h.in" } } } },
+        .{ .style = .{ .cmake = .{
+            .dependency = .{ .dependency = upstream, .sub_path = "cmake/config.h.in" },
+        } } },
         .{
-            // TODO figure out if there's a way I can read this from the zon file so its only set in one place?
             .YAML_VERSION_MAJOR = 0,
             .YAML_VERSION_MINOR = 2,
             .YAML_VERSION_PATCH = 5,
@@ -39,7 +48,7 @@ pub fn build(b: *std.Build) void {
             "src/scanner.c",
             "src/writer.c",
         },
-        .flags = &[_][]const u8{"-DHAVE_CONFIG_H"},
+        .flags = &.{"-DHAVE_CONFIG_H"},
     });
 
     lib.installHeader(upstream.path("include/yaml.h"), "yaml.h");
