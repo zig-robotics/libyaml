@@ -12,14 +12,15 @@ pub fn build(b: *std.Build) void {
     ) orelse .dynamic;
 
     const upstream = b.dependency("yaml", .{});
-    var lib = std.Build.Step.Compile.create(b, .{
+    var lib = b.addLibrary(.{
         .name = "yaml",
-        .root_module = .{
-            .target = target,
-            .optimize = optimize,
-            .pic = if (linkage == .dynamic) true else null,
-        },
-        .kind = .lib,
+        .root_module = b.createModule(
+            .{
+                .target = target,
+                .optimize = optimize,
+                .pic = if (linkage == .dynamic) true else null,
+            },
+        ),
         .linkage = linkage,
     });
 

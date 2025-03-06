@@ -1,10 +1,13 @@
 .{
-    .name = "yaml",
+    .name = .yaml,
     .version = "0.2.5",
+    .fingerprint = 0xea31a9843489b1f8,
+    .minimum_zig_version = "0.14.0",
+
     .dependencies = .{
         .yaml = .{
             .url = "https://github.com/yaml/libyaml/archive/refs/tags/0.2.5.tar.gz",
-            .hash = "12200c4021cb16ecdf8d3707098ff694e140c9f92cbd76bb1f30cba84965eab34db6",
+            .hash = "N-V-__8AAFisCAAMQCHLFuzfjTcHCY_2lOFAyfksvXa7HzDL",
         },
     },
     .paths = .{
